@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 echo "Installing Docker ..."
-sudo yum install -y docker
+sudo apt-get update
+sudo apt-get install docker.io -y
 sudo systemctl start docker
 sudo systemctl enable docker
-sudo usermod -aG docker ec2-user
+
+sudo usermod -aG docker ubuntu
 newgrp docker
 docker --version

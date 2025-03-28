@@ -2,19 +2,37 @@
   "builders": [
     {
       "type": "amazon-ebs",
+      "name": "amazon-ebs-linux",
       "region": "us-east-1",
-      "source_ami": "ami-08b5b3a93ed654d19",
+      "source_ami": "ami-071226ecf16aa7d96",
       "instance_type": "t2.micro",
       "ssh_username": "ec2-user",
       "ssh_keypair_name": "ami-key-pair",
       "ssh_private_key_file":"../ami-key-pair.pem",
       "ami_name": "amazon-linux-2023-with-docker {{timestamp}}"
+    },
+    {
+      "type": "amazon-ebs",
+      "name": "amazon-ebs-ubuntu",
+      "region": "us-east-1",
+      "source_ami": "ami-0f9de6e2d2f067fca",
+      "instance_type": "t2.micro",
+      "ssh_username": "ubuntu",
+      "ssh_keypair_name": "ami-key-pair",
+      "ssh_private_key_file":"../ami-key-pair.pem",
+      "ami_name": "ubuntu-with-docker {{timestamp}}"
     }
   ],
     "provisioners": [
       {
         "type": "shell",
-        "script": "provision.sh"
+        "script": "provision_amazon_linux.sh",
+        "only": ["amazon-ebs-linux"]
+      },
+      {
+        "type": "shell",
+        "script": "provision_ubuntu.sh",
+        "only": ["amazon-ebs-ubuntu"]
       }
     ]
 }
