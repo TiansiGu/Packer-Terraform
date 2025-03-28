@@ -10,12 +10,6 @@ variable "public_key" {
   description = "The public key to access your bastion server"
 }
 
-variable "bastion_prefix"{
-  type        = string
-  default     = "bastion"
-  description = "Bastion prefix for the bastion resources"
-}
-
 variable "vpc_name"{
   type        = string
   default     = "IaC-vpc"
@@ -44,6 +38,18 @@ variable "aws_public_subnet_cidr" {
   description = "List of internal CIDR ranges for the public subnet"
   type        = list(string)
   default     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+}
+
+variable "amazon_linux_ec2_count" {
+  type        = number
+  default     = 3
+  description = "the number of Amazon Linux machine we want to provision"
+}
+
+variable "ubuntu_ec2_count" {
+  type        = number
+  default     = 3
+  description = "the number of Ubuntu machine we want to provision"
 }
 
 variable "resource_tags" {

@@ -1,16 +1,9 @@
 # Packer-Terraform
 Clone this repo to your local machine.
 
-## Configure AWS Credentials
-Get your AWS credentials from AWS Academy and export them as environment variables:
-```
-% export AWS_ACCESS_KEY_ID="your aws_access_key_id"
-% export AWS_SECRET_ACCESS_KEY="your aws_secret_access_key"
-% export AWS_SESSION_TOKEN="your aws_session_token"
-```
-
-## Create a custom AWS AMI using Packer 
-Check if you already have packer installed on your machine:
+## Preparation
+### Installation
+Check if you already have packer and terraform installed on your machine:
 ```
 % packer
 ```
@@ -18,12 +11,24 @@ If not, run the following commands to install packer:
 ```
 % brew tap hashicorp/tap
 % brew install hashicorp/tap/packer
+% brew install hashicorp/tap/terraform
 ``` 
-Install Amazon plugin on packer: 
+Install Amazon plugin on packer:
 ```
 % packer plugins install github.com/hashicorp/amazon
 ```
-In the root directory, create a key pair using Amazon EC2 (You need to have AWS CLI preinstalled):
+
+### Configure AWS Credentials
+Get your AWS credentials from AWS Academy and export them as environment variables:
+```
+% export AWS_ACCESS_KEY_ID="your aws_access_key_id"
+% export AWS_SECRET_ACCESS_KEY="your aws_secret_access_key"
+% export AWS_SESSION_TOKEN="your aws_session_token"
+```
+
+## Provision Ubuntu and Amazon Linux EC2s
+### Build custom AMIs using Packer
+In the root directory of the local repository, create a key pair using Amazon EC2 (You need to have AWS CLI preinstalled):
 ```
 % aws ec2 create-key-pair \
     --key-name ami-key-pair \
@@ -32,39 +37,28 @@ In the root directory, create a key pair using Amazon EC2 (You need to have AWS 
     --query "KeyMaterial" \
     --output text > ami-key-pair.pem
 ```
-You can also name the key pair on your preference. But be sure to change the value of "ssh_keypair_name" and "ami-key-pair" in aws-ami-docker.json if you do so.
+You can also name the key pair on your preference. But be sure to change the value of "ssh_keypair_name" and "ami-key-pair" in aws-ami-docker.json if you did so.
 
-For future connection to ec2 instances launched by the custom AMI, run the following command to set the permissions of your private key file:
+Run the following command to set the permissions of your private key file:
 ```
 % chmod 400 ami-key-pair.pem
 ```
 Note: It is not recommended to change the path of the private key file, because packer config file use the specific location for image creation.
 If you move it, be sure to update the path in aws-ami-docker.json at the same time.
 
-Create a custom AMI with **docker** and **ssh public key** set up:
+Create two AMIs, one for **Amazon Linux** and another for **Ubuntu** with **docker** and **ssh public key** set up:
 ```
 % cd packer
 % packer build aws-ami-docker.json  
 ```
-You will see packer building logs. Once the process is completed, you will see outputs like the following:
+Once the process is completed, you will see outputs like the following:
+![img_3.png](./screenshots/img_3.png)
+
+You can also check the built AMIs in AWS Console:
 ![img.png](./screenshots/img.png)
 
-You will be able to see the AMI with the Id specified in the packer build output in AWS Console:
-![img_1.png](./screenshots/img_1.png)
 
-
-
-
-## Use Terraform to provision AWS resources
-Check if you already have terraform installed on your machine:
-```
-% terraform
-```
-If not, run the following commands to install packer:
-```
-% brew tap hashicorp/tap
-% brew install hashicorp/tap/terraform
-``` 
+### Provision EC2s and related AWS resources using Terraform
 At terraform directory, run the following commands to provision AWS resources
 ```
 $ cd terraform
@@ -72,11 +66,11 @@ $ terraform init
 $ terraform plan
 $ terraform apply
 ```
-After execution, you will see output like this for `terraform apply`:
+After `terraform apply`, you will see output like:
 ![img_2.png](./screenshots/img_2.png)
-![img_2.2.png](./screenshots/img_2.2.png)
 
-Now you can check the resources terraform just created on your AWS console:
+Launched EC2s:
+![img_1.png](./screenshots/img_1.png)
 #### VPC
 ![img_3.png](./screenshots/img_3.png)
 
