@@ -27,7 +27,8 @@ resource "aws_instance" "ec2-amazon-linux" {
   tags = merge(
     var.resource_tags,
     { Name = "amazon-linux-${format("%02d", count.index + 1)}" }, //amazon-linux-01, amazon-linux-02, ...
-    { OS   = "amazon" }
+    { OS   = "amazon" },
+    { Group = "webserver_node"}
   )
 }
 
@@ -41,6 +42,7 @@ resource "aws_instance" "ec2-ubuntu" {
   tags = merge(
     var.resource_tags,
     { Name = "ubuntu-${format("%02d", count.index + 1)}" }, //ubuntu-01, ubuntu-02, ...
-    { OS   = "ubuntu" }
+    { OS   = "ubuntu" },
+    { Group = "webserver_node"}
   )
 }

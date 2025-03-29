@@ -1,0 +1,57 @@
+---
+- name: Update and upgrade packages for ubuntu machines
+  hosts: OS_ubuntu  # Target hosts/group from inventory
+  become: yes  # Execute tasks as root (sudo)
+  tasks:
+    - name: Update apt-get repo and cache
+      ansible.builtin.apt:
+        force_apt_get: yes
+        cache_valid_time: 3600
+        update_cache: yes  # if the apt cache is older than 1 hour, it will be updated
+
+    - name: Update all Ubuntu packages to their latest version
+      ansible.builtin.apt:
+        name: "*"  # update all packages to latest version
+        state: latest
+
+    - name: Check if a reboot is required.
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+        get_checksum: no
+      register: reboot_required_file
+
+    - name: Reboot the server (if required).
+      ansible.builtin.reboot:
+      when: reboot_required_file.stat.exists == true
+
+    - name: Remove dependencies that are no longer required.
+      ansible.builtin.apt:
+        autoremove: yes
+
+
+- name: Update and upgrade packages for amazon linux machines
+  hosts: OS_amazon  # Target hosts/group from inventory
+  become: yes  # Execute tasks as root (sudo)
+  tasks:
+    - name: Update yum repository cache
+      ansible.builtin.yum:
+        update_cache: yes
+
+    - name: Update all Amazon Linux packages to their latest version
+      ansible.builtin.yum:
+        name: "*"  # update all packages to latest version
+        state: latest
+
+    - name: Check if a reboot is required.
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+        get_checksum: no
+      register: reboot_required_file
+
+    - name: Reboot the server (if required).
+      ansible.builtin.reboot:
+      when: reboot_required_file.stat.exists == true
+
+    - name: Remove dependencies that are no longer required.
+      ansible.builtin.yum:
+        autoremove: yes

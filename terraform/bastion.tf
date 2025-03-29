@@ -18,7 +18,8 @@ resource "aws_instance" "bastion" {
 
   tags = merge(
     var.resource_tags,
-    { Name = "BastionHost-${var.resource_tags.PROJECT}-${var.resource_tags.ENV}" }
+    { Name = "BastionHost-${var.resource_tags.PROJECT}-${var.resource_tags.ENV}" },
+    { Group = "bastion"}
   )
 }
 

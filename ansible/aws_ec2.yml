@@ -1,0 +1,28 @@
+plugin: aws_ec2
+validate_certs: false
+regions:
+  - us-east-1
+filters:
+  instance-state-name: running  # only running instances
+  tag:Group:
+    - bastion
+    - webserver_node
+
+keyed_groups:
+  - key: tags.Group      # Group instances by the Group tag (e.g., bastion, webserver_node)
+    prefix: Group
+  - key: tags.OS         # Group instances by OS tag
+    prefix: OS           # Prefix for group name (e.g., OS_amazon, OS_ubuntu)
+    filter: "tag:Group"  # Group by OS happens only for webserver nodes
+hostnames:
+  - private-ip-address
+
+#all:vars:
+#  ansible_ssh_private_key_file: ~/.ssh/ami-key-pair.pem
+#  ansible_ssh_common_args: >-
+#    -o ProxyCommand="ssh
+#    -o StrictHostKeyChecking=no
+#    -o UserKnownHostsFile=/dev/null
+#    -i ~/.ssh/ami-key-pair.pem
+#    -W %h:%p
+#    -q ec2-user@ec2-3-93-143-228.compute-1.amazonaws.com"
