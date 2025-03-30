@@ -125,3 +125,15 @@
         name: docker
         state: latest
       when: installed_version != latest_version
+
+- name: Report disk usage for each webserver node
+  hosts: Group_webserver_node
+  gather_facts: no
+  tasks:
+    - name: Display disk space
+      shell: df -h
+      register: disk_space
+
+    - name: Debug output
+      debug:
+        var: disk_space.stdout_lines
