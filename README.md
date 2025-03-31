@@ -43,8 +43,7 @@ Run the following command to set the permissions of your private key file:
 ```
 % chmod 400 ami-key-pair.pem
 ```
-Note: It is not recommended to change the path of the private key file, because packer config file use the specific location for image creation.
-If you move it, be sure to update the path in aws-ami-docker.json at the same time.
+Note: It is not recommended to change the path of the private key file. If you move it, be sure to update the path in all related files at the same time.
 
 Create two AMIs, one for **Amazon Linux** and another for **Ubuntu** with **docker** and **ssh public key** set up:
 ```
