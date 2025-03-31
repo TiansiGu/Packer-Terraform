@@ -120,18 +120,58 @@ Add the key in the root directory into SSH agent:
 ```
 % ssh-add ami-key-pair.pem
 ```
-SSH into the bastion host with agent forwarding:
+Test by SSH into the bastion host with agent forwarding:
 ```
 % ssh -A -i ami-key-pair.pem ec2-user@[your-bastion-host-public-ipv4-dns]
 ```
-Once you are inside the bastion host, SSH into your custom ec2 instance in the private subnet
+Once you are inside the bastion host, SSH into ec2 instances in the private subnet by
 ```
-% ssh ec2-user@[your-custom-ec2-private-ipv4-dns]
+% ssh ec2-user@[your-custom-ec2-private-ipv4-dns] // for amazon linux machines
+% ssh ubuntu@[your-custom-ec2-private-ipv4-dns] //   for ubuntu machines
 ```
 Example output:
-![img_17.png](./screenshots/img_17.png)
+![img_17.png](./screenshots/img_1.png)
 
-In ec2.tf, no statement associates the key-pair with the ec2 instance. However, you can still use the private key file to ssh into this EC2 as the public key has been pre-configured in the custom AMI, and thus was pre-set in the ec2
+### Manage Configurations using Ansible
+Install ansible on your local machine:
+```
+% brew update
+% brew install ansible
+```
+Run the following commands to check inventories:
+```
+% ansible-inventory -i aws_ec2.yml --graph
+# Or to get detailed information
+# % ansible-inventory -i aws_ec2.yml --list
+```
+Example output:
 
-Run some docker commands to verify docker is ready to use:
-![img_18.png](./screenshots/img_18.png)
+![img_4.png](./screenshots/img_4.png)
+
+Run the following command to perform update, upgrade, running docker newest version, and report disk usage task:
+```
+% ansible-playbook -i aws_ec2.yml playbook.yml
+```
+Output of "Update and upgrade the packages" and "Verify we are running the latest docker" for Ubuntu :
+![img_5.png](./screenshots/img_5.png)
+![img_6.png](./screenshots/img_6.png)
+![img_7.png](./screenshots/img_7.png)
+
+Output of "Update and upgrade the packages" and "Verify we are running the latest docker" for Amazon Linux:
+![img_8.png](./screenshots/img_8.png)
+![img_9.png](./screenshots/img_9.png)
+![img_10.png](./screenshots/img_10.png)
+
+Output of reporting the disk usage for each server node in private subnet:
+![img_12.png](./screenshots/img_12.png)
+![img_13.png](./screenshots/img_13.png)
+![img_14.png](./screenshots/img_14.png)
+![img_15.png](./screenshots/img_15.png)
+
+Output of reporting the disk usage for bastion host in public subnet:
+![img_11.png](./screenshots/img_11.png)
+
+Output of Play Recap:
+![img_16.png](./screenshots/img_16.png)
+
+

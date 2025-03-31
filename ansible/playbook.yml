@@ -13,6 +13,8 @@
       ansible.builtin.apt:
         name: "*"  # update all packages to latest version
         state: latest
+      notify:
+        - Restart Docker
 
     - name: Check if a reboot is required.
       ansible.builtin.stat:
@@ -28,40 +30,25 @@
       ansible.builtin.apt:
         autoremove: yes
 
-- name: Verify Docker is the latest version on Ubuntu
-  hosts: OS_ubuntu
-  become: yes
-  tasks:
-    - name: Get installed Docker version
+  handlers: # Verify we are running the latest docker
+    - name: Restart Docker
+      ansible.builtin.systemd:
+        name: docker
+        state: restarted
+        enabled: yes
+      notify:
+        - Show Docker Version  # Notify a cmd task to show the Docker's version
+
+    - name: Show Docker Version
       ansible.builtin.command:
         cmd: docker --version
-      register: installed_docker_version
-      changed_when: false
+      register: docker_version_output
+      notify:
+        - Print Docker Restarted Message with Version
 
-    - name: Extract the installed Docker version number
-      ansible.builtin.set_fact:
-        installed_version: "{{ installed_docker_version.stdout.split(',')[0].split(' ')[2] }}"
-
-    - name: Fetch the latest stable Docker version
-      ansible.builtin.uri:
-        url: "https://api.github.com/repos/docker/docker-ce/releases/latest"
-        method: GET
-        return_content: yes
-      register: latest_docker_release
-
-    - name: Extract the latest Docker version from the API response
-      ansible.builtin.set_fact:
-        latest_version: "{{ latest_docker_release.json.tag_name }}"
-
-    - name: Compare the installed version with the latest version
+    - name: Print Docker Restarted Message with Version
       ansible.builtin.debug:
-        msg: "Installed Docker version: {{ installed_version }}. Latest Docker version: {{ latest_version }}."
-
-    - name: Ensure Docker is the latest version (if needed)
-      ansible.builtin.apt:
-        name: docker.io
-        state: latest
-      when: installed_version != latest_version
+        msg: "Docker service was restarted because the packages were updated. Docker version: {{ docker_version_output.stdout }}"
 
 
 - name: Update and upgrade packages for amazon linux machines
@@ -76,6 +63,8 @@
       ansible.builtin.yum:
         name: "*"  # update all packages to latest version
         state: latest
+      notify:
+        - Restart Docker
 
     - name: Check if a reboot is required.
       ansible.builtin.stat:
@@ -91,43 +80,41 @@
       ansible.builtin.yum:
         autoremove: yes
 
-- name: Verify Docker is the latest version on Amazon Linux 2023
-  hosts: OS_amazon
-  become: yes
-  tasks:
-    - name: Get installed Docker version
+  handlers: # Verify we are running the latest docker
+    - name: Restart Docker
+      ansible.builtin.systemd:
+        name: docker
+        state: restarted
+        enabled: yes
+      notify:
+        - Show Docker Version  # Notify a cmd task to show the Docker's version
+
+    - name: Show Docker Version
       ansible.builtin.command:
         cmd: docker --version
-      register: installed_docker_version
-      changed_when: false
+      register: docker_version_output
+      notify:
+        - Print Docker Restarted Message with Version
 
-    - name: Extract the installed Docker version number
-      ansible.builtin.set_fact:
-        installed_version: "{{ installed_docker_version.stdout.split(',')[0].split(' ')[2] }}"
-
-    - name: Fetch the latest stable Docker version
-      ansible.builtin.uri:
-        url: "https://api.github.com/repos/docker/docker-ce/releases/latest"
-        method: GET
-        return_content: yes
-      register: latest_docker_release
-
-    - name: Extract the latest Docker version from the API response
-      ansible.builtin.set_fact:
-        latest_version: "{{ latest_docker_release.json.tag_name }}"
-
-    - name: Compare the installed version with the latest version
+    - name: Print Docker Restarted Message with Version
       ansible.builtin.debug:
-        msg: "Installed Docker version: {{ installed_version }}. Latest Docker version: {{ latest_version }}."
+        msg: "Docker service was restarted because the packages were updated. Docker version: {{ docker_version_output.stdout }}"
 
-    - name: Ensure Docker is the latest version (if needed)
-      ansible.builtin.yum:
-        name: docker
-        state: latest
-      when: installed_version != latest_version
 
 - name: Report disk usage for each webserver node
   hosts: Group_webserver_node
+  gather_facts: no
+  tasks:
+    - name: Display disk space
+      shell: df -h
+      register: disk_space
+
+    - name: Debug output
+      debug:
+        var: disk_space.stdout_lines
+
+- name: Report disk usage for bastion host
+  hosts: Group_bastion
   gather_facts: no
   tasks:
     - name: Display disk space

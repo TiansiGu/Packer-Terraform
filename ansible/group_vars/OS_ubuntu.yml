@@ -1,10 +1,10 @@
 ansible_user: ubuntu
-ansible_ssh_private_key_file: ~/.ssh/ami-key-pair.pem
+ansible_ssh_private_key_file: ../ami-key-pair.pem
 ansible_ssh_common_args: >-
   -o ProxyCommand="ssh
   -o StrictHostKeyChecking=no
   -o UserKnownHostsFile=/dev/null
-  -i ~/.ssh/ami-key-pair.pem
+  -i ../ami-key-pair.pem
   -p 22
   -W %h:%p
   -q ec2-user@{{ hostvars[groups["Group_bastion"][0]]["public_ip_address"] }}"
