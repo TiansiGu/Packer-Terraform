@@ -37,7 +37,7 @@ In the root directory of the local repository, create a key pair using Amazon EC
     --query "KeyMaterial" \
     --output text > ami-key-pair.pem
 ```
-You can also name the key pair on your preference. But be sure to change the value of "ssh_keypair_name" and "ami-key-pair" in aws-ami-docker.json if you did so.
+You can also name the key pair on your preference. But be sure to change the value on every configuration when this key is involved.
 
 Run the following command to set the permissions of your private key file:
 ```
